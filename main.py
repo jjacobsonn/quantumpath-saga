@@ -45,11 +45,12 @@ class Player:
             self.inventory[item] = quantity
         print(f"{self.name} found {quantity} {item}!")
 
-    def buy_item(self, item, price):
-        if self.gold >= price:
-            self.gold -= price
-            self.add_item(item)
-            print(f"{self.name} bought a {item} for {price} gold.")
+    def buy_item(self, item, price, quantity=1):
+        total_cost = price * quantity
+        if self.gold >= total_cost:
+            self.gold -= total_cost
+            self.add_item(item, quantity)
+            print(f"{self.name} bought {quantity} {item}(s) for {total_cost} gold.")
         else:
             print("Not enough gold!")
 
@@ -94,7 +95,7 @@ def create_enemy():
 
 def visit_shop(player):
     print("\nWelcome to the shop!")
-    print("1. Buy Health Potion (10 gold)")
+    print("1. Buy Health Potion (10 gold each)")
     print("2. Buy Steel Sword (damage: 10-20, 30 gold)")
     print("3. Buy Magic Staff (damage: 15-25, 50 gold)")
     print("4. Leave shop")
@@ -102,7 +103,8 @@ def visit_shop(player):
     choice = input("What would you like to buy? (Enter the number): ")
 
     if choice == "1":
-        player.buy_item("Health Potions", 10)
+        quantity = int(input("How many health potions would you like to buy? "))
+        player.buy_item("Health Potions", 10, quantity)
     elif choice == "2":
         player.buy_weapon("Steel Sword", (10, 20), 30)
     elif choice == "3":
