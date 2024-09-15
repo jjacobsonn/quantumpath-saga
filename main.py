@@ -4,11 +4,12 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.health = 100
-        self.inventory = {"Health Potions": 2}
+        self.inventory = {"Health Potions": 2, "Shield": False}  # Start without a shield
         self.level = 1
         self.experience = 0
         self.gold = 50  # Player starts with 50 gold
         self.weapon = {"name": "Basic Sword", "damage": (5, 10)}  # Default weapon
+        self.armor = {"name": "None", "defense": 0}  # No armor by default
 
     def attack(self, target):
         damage = random.randint(self.weapon["damage"][0], self.weapon["damage"][1])  # Damage based on weapon
@@ -35,8 +36,13 @@ class Player:
             print("No Health Potions left!")
 
     def take_damage(self, amount):
-        self.health -= amount
-        print(f"{self.name} takes {amount} points of damage! Health is now {self.health}.")
+        reduced_damage = amount - self.armor["defense"]
+        if self.inventory["Shield"]:
+            reduced_damage = max(0, reduced_damage // 2)  # Shield halves the damage
+            print(f"{self.name} blocks with their shield! Damage reduced by half.")
+        reduced_damage = max(0, reduced_damage)  # Ensure damage doesn't go below 0
+        self.health -= reduced_damage
+        print(f"{self.name} takes {reduced_damage} points of damage after armor. Health is now {self.health}.")
 
     def add_item(self, item, quantity=1):
         if item in self.inventory:
@@ -54,18 +60,6 @@ class Player:
         else:
             print("Not enough gold!")
 
-    def gain_experience(self, amount):
-        self.experience += amount
-        print(f"{self.name} gains {amount} XP!")
-        if self.experience >= 100:
-            self.level_up()
-
-    def level_up(self):
-        self.level += 1
-        self.experience = 0
-        self.health = 100 + (self.level * 10)
-        print(f"{self.name} leveled up! Level: {self.level}, Health: {self.health}")
-
     def buy_weapon(self, weapon_name, damage_range, price):
         if self.gold >= price:
             self.gold -= price
@@ -73,6 +67,36 @@ class Player:
             print(f"{self.name} bought a new weapon: {weapon_name} for {price} gold!")
         else:
             print("Not enough gold!")
+
+    def buy_armor(self, armor_name, defense, price):
+        if self.gold >= price:
+            self.gold -= price
+            self.armor = {"name": armor_name, "defense": defense}
+            print(f"{self.name} bought new armor: {armor_name} with {defense} defense for {price} gold!")
+        else:
+            print("Not enough gold!")
+
+    def buy_shield(self, price):
+        if self.gold >= price:
+            self.gold -= price
+            self.inventory["Shield"] = True
+            print(f"{self.name} bought a shield for {price} gold!")
+        else:
+            print("Not enough gold!")
+
+    def gain_experience(self, amount):
+        """Adds experience to the player and handles leveling up."""
+        self.experience += amount
+        print(f"{self.name} gains {amount} XP!")
+        if self.experience >= 100:
+            self.level_up()
+
+    def level_up(self):
+        """Increases the player's level and resets experience."""
+        self.level += 1
+        self.experience = 0
+        self.health = 100 + (self.level * 10)  # Increase max health with level
+        print(f"{self.name} leveled up! Now level {self.level} with {self.health} max health.")
 
 class Enemy:
     def __init__(self, name, health):
@@ -100,9 +124,12 @@ def visit_shop(player):
         print("1. Buy Health Potion (10 gold each)")
         print("2. Buy Steel Sword (damage: 10-20, 30 gold)")
         print("3. Buy Magic Staff (damage: 15-25, 50 gold)")
-        print("4. Leave shop")
+        print("4. Buy Leather Armor (defense: 3, 20 gold)")
+        print("5. Buy Iron Armor (defense: 5, 40 gold)")
+        print("6. Buy Shield (50 gold)")
+        print("7. Leave shop")
 
-        choice = input("What would you like to buy? (Enter the number or '4' to exit): ")
+        choice = input("What would you like to buy? (Enter the number or '7' to exit): ")
 
         if choice == "1":
             quantity = int(input("How many health potions would you like to buy? "))
@@ -112,12 +139,17 @@ def visit_shop(player):
         elif choice == "3":
             player.buy_weapon("Magic Staff", (15, 25), 50)
         elif choice == "4":
+            player.buy_armor("Leather Armor", 3, 20)
+        elif choice == "5":
+            player.buy_armor("Iron Armor", 5, 40)
+        elif choice == "6":
+            player.buy_shield(50)
+        elif choice == "7":
             print("You left the shop.")
             break
         else:
             print("Invalid choice. Please enter a valid option.")
 
-        # Allow the player to continue buying until they leave the shop
         continue_shopping = input("Do you want to buy something else? (yes/no): ").lower()
         if continue_shopping != "yes":
             print("You left the shop.")
@@ -130,7 +162,6 @@ def play_game():
     print(f"You start with {player.gold} gold.")
     print("-" * 40)
 
-    # Main game loop
     continue_game = True
     while player.health > 0 and continue_game:
         # Create a new enemy for each battle
@@ -142,7 +173,9 @@ def play_game():
             print("\nWhat will you do?")
             print("1. Attack")
             print("2. Use Health Potion")
-            print("3. Run away")
+            if player.inventory["Shield"]:
+                print("3. Block with Shield")
+            print("4. Run away")
 
             choice = input("Enter the number of your action: ")
             print()
@@ -153,7 +186,6 @@ def play_game():
                 enemy.health -= damage
 
                 if enemy.health > 0:
-                    # Enemy retaliates
                     damage = enemy.attack(player)
                     player.take_damage(damage)
                 else:
@@ -171,11 +203,14 @@ def play_game():
                     break
 
             elif choice == "2":
-                # Player uses a health potion
                 player.use_health_potion()
 
-            elif choice == "3":
-                # Player runs away
+            elif choice == "3" and player.inventory["Shield"]:
+                print(f"{player.name} blocks with their shield!")
+                damage = enemy.attack(player)
+                player.take_damage(damage // 2)  # Blocking halves the damage
+
+            elif choice == "4":
                 print(f"{player.name} runs away from the {enemy.name}!")
                 break
 
@@ -191,13 +226,11 @@ def play_game():
             print("Game over!")
             break
 
-        # After battle, allow the player to visit the shop
         print("-" * 40)
         visit_shop_choice = input("Do you want to visit the shop? (yes/no): ").lower()
         if visit_shop_choice == "yes":
             visit_shop(player)
 
-        # Ask if the player wants to continue after defeating an enemy or running away
         print("-" * 40)
         next_action = input("Do you want to continue your adventure? (yes/no): ").lower()
         if next_action != "yes":
