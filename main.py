@@ -94,25 +94,34 @@ def create_enemy():
     return random.choice(enemies)
 
 def visit_shop(player):
-    print("\nWelcome to the shop!")
-    print("1. Buy Health Potion (10 gold each)")
-    print("2. Buy Steel Sword (damage: 10-20, 30 gold)")
-    print("3. Buy Magic Staff (damage: 15-25, 50 gold)")
-    print("4. Leave shop")
+    while True:
+        print(f"\n{player.name} has {player.gold} gold.")
+        print("\nWelcome to the shop!")
+        print("1. Buy Health Potion (10 gold each)")
+        print("2. Buy Steel Sword (damage: 10-20, 30 gold)")
+        print("3. Buy Magic Staff (damage: 15-25, 50 gold)")
+        print("4. Leave shop")
 
-    choice = input("What would you like to buy? (Enter the number): ")
+        choice = input("What would you like to buy? (Enter the number or '4' to exit): ")
 
-    if choice == "1":
-        quantity = int(input("How many health potions would you like to buy? "))
-        player.buy_item("Health Potions", 10, quantity)
-    elif choice == "2":
-        player.buy_weapon("Steel Sword", (10, 20), 30)
-    elif choice == "3":
-        player.buy_weapon("Magic Staff", (15, 25), 50)
-    elif choice == "4":
-        print("You left the shop.")
-    else:
-        print("Invalid choice.")
+        if choice == "1":
+            quantity = int(input("How many health potions would you like to buy? "))
+            player.buy_item("Health Potions", 10, quantity)
+        elif choice == "2":
+            player.buy_weapon("Steel Sword", (10, 20), 30)
+        elif choice == "3":
+            player.buy_weapon("Magic Staff", (15, 25), 50)
+        elif choice == "4":
+            print("You left the shop.")
+            break
+        else:
+            print("Invalid choice. Please enter a valid option.")
+
+        # Allow the player to continue buying until they leave the shop
+        continue_shopping = input("Do you want to buy something else? (yes/no): ").lower()
+        if continue_shopping != "yes":
+            print("You left the shop.")
+            break
 
 def play_game():
     player_name = input("Enter your player's name: ")
