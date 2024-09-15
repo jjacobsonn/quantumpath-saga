@@ -1,6 +1,8 @@
 # QuantumPath Saga
 
-<img src="./images/icon.png" alt="QuantumPath Saga Icon" height="500" style="width: auto;">
+<div align="center">
+    <img src="./images/icon.png" alt="QuantumPath Saga Icon" height="500" style="width: auto;">
+</div>
 
 **QuantumPath Saga** is a dynamic, text-based RPG that provides a procedurally generated adventure with each playthrough. The game evolves based on your choices, offering new storylines, characters, and events every time you play.
 
