@@ -112,7 +112,7 @@ def visit_shop(player):
     else:
         print("Invalid choice.")
 
-if __name__ == "__main__":
+def play_game():
     player_name = input("Enter your player's name: ")
     player = Player(player_name)
     print(f"\nWelcome, {player.name}! Your adventure begins.")
@@ -194,3 +194,11 @@ if __name__ == "__main__":
             print(f"{player.name} decides to rest. Adventure ends here.")
 
     print("\nGame over.")
+
+if __name__ == "__main__":
+    while True:
+        play_game()
+        play_again = input("\nDo you want to play again? (yes/no): ").lower()
+        if play_again != "yes":
+            print("Thanks for playing! Goodbye.")
+            break
